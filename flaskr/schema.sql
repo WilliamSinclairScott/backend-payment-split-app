@@ -1,17 +1,61 @@
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS post;
+DROP TABLE IF EXISTS divvy;
+DROP TABLE IF EXISTS participant;
+DROP TABLE IF EXISTS event;
+DROP TABLE IF EXISTS item;
+DROP TABLE IF EXISTS owesWho;
 
 CREATE TABLE user (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  username VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE post (
+CREATE TABLE participant (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  author_id INTEGER NOT NULL,
-  created TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  title TEXT NOT NULL,
-  body TEXT NOT NULL,
-  FOREIGN KEY (author_id) REFERENCES user (id)
+  divvy_id INTEGER,
+  description TEXT,
+  user_id INTEGER,
+  FOREIGN KEY (divvy_id) REFERENCES divvy(id),
+  FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+CREATE TABLE divvy (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER,
+  name VARCHAR(255) NOT NULL,
+  description TEXT NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+CREATE TABLE event (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  divvy_id INTEGER,
+  name VARCHAR(255) NOT NULL,
+  date TEXT NOT NULL,
+  amount INTEGER NOT NULL,
+  paidBy INTEGER,
+  FOREIGN KEY (divvy_id) REFERENCES divvy(id),
+  FOREIGN KEY (paidBy) REFERENCES participant(id)
+);
+
+CREATE TABLE item (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  event_id INTEGER,
+  name VARCHAR(255) NOT NULL,
+  amount INTEGER NOT NULL,
+  paidBy INTEGER,
+  FOREIGN KEY (event_id) REFERENCES event(id),
+  FOREIGN KEY (paidBy) REFERENCES participant(id)
+);
+
+CREATE TABLE owesWho (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  percent REAL NOT NULL CHECK (percent >= 0 AND percent <= 1),
+  participant_id INTEGER,
+  item_id INTEGER,
+  FOREIGN KEY (participant_id) REFERENCES participant(id),
+  FOREIGN KEY (item_id) REFERENCES item(id)
 );
